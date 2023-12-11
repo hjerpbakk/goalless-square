@@ -35,7 +35,7 @@
         let starPosition = null;
 
         function drawStar(x, y) {
-            ctx.fillStyle = '#E1D1C1';
+            ctx.fillStyle = '#D4FF26';
             ctx.beginPath();
             // Tegn en stjerne
             for (let i = 0; i < 5; i++) {
@@ -82,7 +82,7 @@
         function drawSmileFace(x, y) {
             ctx.beginPath();
             ctx.arc(x + cellSize / 2, y + cellSize / 2, cellSize / 2, 0, Math.PI * 2);
-            ctx.fillStyle = '#E1D1C1';
+            ctx.fillStyle = '#D4FF26';
             ctx.fill();
             ctx.beginPath();
             ctx.arc(x + cellSize / 3, y + cellSize / 3, cellSize / 10, 0, Math.PI * 2);
