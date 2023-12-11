@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Goalless square</title>
+    <style>
+        #canvasContainer {
+            text-align: center; /* Sentrerer elementene inni containeren */
+        }
+
+        #myCanvas {
+            display: block; /* Gjør at canvas oppfører seg som et blokkelement */
+            margin: auto; /* Sentrerer canvas */
+        }
+
+        #moveLeftButton {
+            display: block; /* Gjør at knappen oppfører seg som et blokkelement */
+            margin: 20px auto; /* Sentrerer knappen og gir litt margin på toppen */
+            font-size: xx-large;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="768" height="488"></canvas>
+    <button id="moveLeftButton">Sett et mål</button>
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+        const frameWidth = 64;
+        const rows = 9;
+        const cols = 16;
+        const cellSize = (canvas.width - 2 * frameWidth) / cols;
+        let square = { x: 8, y: 4, moving: true, alwaysLeft: false };
+        let isRumbling = false;
+
+        let starPosition = null;
+
+        function drawStar(x, y) {
+            ctx.fillStyle = '#E1D1C1';
+            ctx.beginPath();
+            // Tegn en stjerne
+            for (let i = 0; i < 5; i++) {
+                ctx.lineTo(Math.cos((18 + i * 72) / 180 * Math.PI) * cellSize / 2 + x,
+                           -Math.sin((18 + i * 72) / 180 * Math.PI) * cellSize / 2 + y);
+                ctx.lineTo(Math.cos((54 + i * 72) / 180 * Math.PI) * cellSize / 4 + x,
+                           -Math.sin((54 + i * 72) / 180 * Math.PI) * cellSize / 4 + y);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawFrame() {
+            // Tegner den blå rammen
+            ctx.fillStyle = '#909DA9';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Tegner teksten "Mål"
+            ctx.fillStyle = 'white';
+            ctx.font = '30px Arial';
+            ctx.fillText("Løsningsrom", 64, 50);
+        }
+
+        function drawGrid() {
+            // Tegner rutenettet
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    ctx.fillStyle = '#AEB7AB';
+                    ctx.fillRect(frameWidth + i * cellSize, frameWidth + j * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+
+        function drawSquare() {
+            if (square.moving) {
+                // Tegner firkanten
+                ctx.fillStyle = '#D4FF26';
+                ctx.fillRect(frameWidth + square.x * cellSize, frameWidth + square.y * cellSize, cellSize, cellSize);
+            } else {
+                // Tegner smilefjeset
+                drawSmileFace(frameWidth + square.x * cellSize, frameWidth + square.y * cellSize);
+            }
+        }
+
+        function drawSmileFace(x, y) {
+            ctx.beginPath();
+            ctx.arc(x + cellSize / 2, y + cellSize / 2, cellSize / 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#E1D1C1';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + cellSize / 3, y + cellSize / 3, cellSize / 10, 0, Math.PI * 2);
+            ctx.fillStyle = 'black';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + 2 * cellSize / 3, y + cellSize / 3, cellSize / 10, 0, Math.PI * 2);
+            ctx.fillStyle = 'black';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + cellSize / 2, y + cellSize / 2, cellSize / 4, 0, Math.PI);
+            ctx.stroke();
+        }
+
+        function moveSquare() {
+            if (!square.moving) return;
+            let direction;
+            if (square.alwaysLeft) {
+                direction = 2; // Alltid bevege seg til venstre
+            } else {
+                direction = Math.floor(Math.random() * 4);
+            }
+            switch (direction) {
+                case 0: if (square.y > 0) square.y--; else { square.y--; triggerRumble(); } break;
+                case 1: if (square.y < rows - 1) square.y++; else { square.y++; triggerRumble(); } break;
+                case 2: if (square.x > 0) square.x--; else { square.x--; triggerRumble(); } break;
+                case 3: if (square.x < cols - 1) square.x++; else { square.x++; triggerRumble(); } break;
+            }
+            draw();
+        }
+
+        function triggerRumble() {
+            square.moving = false;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawFrame();
+            drawGrid(); // Tegner rutenettet
+            if (starPosition) {
+                drawStar(starPosition.x, starPosition.y);
+            }
+            drawSquare();
+        }
+
+        document.getElementById('moveLeftButton').addEventListener('click', function() {
+            square.alwaysLeft = true;
+            // Beregn stjernens posisjon
+            starPosition = {
+                x: frameWidth - cellSize / 2, // Plassering i rammen der firkanten vil gå ut
+                y: frameWidth + square.y * cellSize + cellSize / 2
+            };
+        });
+
+        setInterval(moveSquare, 1000); // Flytter firkanten hvert sekund
+        draw();
+    </script>
+</body>
+</html>
