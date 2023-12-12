@@ -3,6 +3,10 @@
 <head>
     <title>Goalless square</title>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
         #canvasContainer {
             text-align: center; /* Sentrerer elementene inni containeren */
         }
@@ -14,14 +18,14 @@
 
         #moveLeftButton {
             display: block; /* Gjør at knappen oppfører seg som et blokkelement */
-            margin: 20px auto; /* Sentrerer knappen og gir litt margin på toppen */
+            margin: 5px auto; /* Sentrerer knappen og gir litt margin på toppen */
             font-size: xx-large;
         }
     </style>
 </head>
 <body>
     <canvas id="myCanvas" width="768" height="488"></canvas>
-    <button id="moveLeftButton">Sett et mål</button>
+    <button id="moveLeftButton">Start jobbinga!</button>
     <script>
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d');
@@ -29,7 +33,7 @@
         const rows = 9;
         const cols = 16;
         const cellSize = (canvas.width - 2 * frameWidth) / cols;
-        let square = { x: 8, y: 4, moving: true, alwaysLeft: false };
+        let square = { x: 8, y: 4, moving: false, alwaysLeft: false };
         let isRumbling = false;
 
         let starPosition = null;
@@ -69,13 +73,13 @@
         }
 
         function drawSquare() {
-            if (square.moving) {
+            if (square.alwaysLeft && !square.moving) {
+                // Tegner smilefjeset
+                drawSmileFace(frameWidth + square.x * cellSize, frameWidth + square.y * cellSize);
+            } else {
                 // Tegner firkanten
                 ctx.fillStyle = '#D4FF26';
                 ctx.fillRect(frameWidth + square.x * cellSize, frameWidth + square.y * cellSize, cellSize, cellSize);
-            } else {
-                // Tegner smilefjeset
-                drawSmileFace(frameWidth + square.x * cellSize, frameWidth + square.y * cellSize);
             }
         }
 
@@ -129,12 +133,17 @@
         }
 
         document.getElementById('moveLeftButton').addEventListener('click', function() {
-            square.alwaysLeft = true;
-            // Beregn stjernens posisjon
-            starPosition = {
-                x: frameWidth - cellSize / 2, // Plassering i rammen der firkanten vil gå ut
-                y: frameWidth + square.y * cellSize + cellSize / 2
-            };
+            if (!square.moving) {
+                square.moving = true;
+                document.getElementById('moveLeftButton').innerText = 'Sett et mål!';
+            } else {
+                square.alwaysLeft = true;
+                // Beregn stjernens posisjon
+                starPosition = {
+                    x: frameWidth - cellSize / 2, // Plassering i rammen der firkanten vil gå ut
+                    y: frameWidth + square.y * cellSize + cellSize / 2
+                };
+            }
         });
 
         setInterval(moveSquare, 1000); // Flytter firkanten hvert sekund
